@@ -1,0 +1,19 @@
+# Secrets and environment files
+.env
+.env.*
+!.env.example
+
+# Private credentials and keys
+credentials/
+private/
+*.pem
+*.key
+*.p12
+
+# Private exports and raw screenshots
+exports/private/
+screenshots/raw/
+
+# Operating system files
+.DS_Store
+Thumbs.db
