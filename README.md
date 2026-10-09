@@ -20,6 +20,7 @@ Businesses receive leads from websites and forms. Some requests may be incomplet
 ## Workflow overview
 
 Webhook
+
   → Validate request
   → Store lead safely
   → Return 202 Accepted
@@ -27,7 +28,6 @@ Webhook
   → Human approval when required
   → Save final outcome
   → Sync final result to a Demo CRM
-
 
 ## Privacy and security
 - All leads, names, emails, phone numbers, messages, and screenshots use synthetic or redacted data.
