@@ -210,6 +210,19 @@ screenshots/  Redacted test evidence
 - [Workflow Export Guidance](workflow/README.md)
 - [Screenshot Evidence Guidance](screenshots/README.md)
 
+  ## Visual test evidence
+
+The following redacted screenshots demonstrate the completed workflow using synthetic data only.
+
+- [Valid request — HTTP 202 Accepted](screenshots/01-valid-request-202.png)
+- [Invalid request — HTTP 400 Rejected](screenshots/02-invalid-request-400.png)
+- [Lead Intake API workflow canvas](screenshots/03-main-workflow-canvas.png)
+- [Structured AI classification output](screenshots/04-ai-structured-output.png)
+- [Human approval form](screenshots/05-human-approval-form.png)
+- [Final approved outcome in the Demo CRM](screenshots/06-final-demo-crm-row.png)
+- [Synthetic error-handling evidence](screenshots/07-error-log-test.png)
+
+
 ## Privacy and security
 
 - All names, emails, phone numbers, messages, test requests, and screenshots are synthetic or redacted.
