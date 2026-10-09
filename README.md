@@ -28,6 +28,7 @@ Webhook
   → Human approval when required
   → Save final outcome
   → Sync final result to a Demo CRM
+```text
 
 ## Privacy and security
 
