@@ -19,7 +19,6 @@ Businesses receive leads from websites and forms. Some requests may be incomplet
 
 ## Workflow overview
 
-```text
 Webhook
   → Validate request
   → Store lead safely
@@ -28,10 +27,9 @@ Webhook
   → Human approval when required
   → Save final outcome
   → Sync final result to a Demo CRM
-```text
+
 
 ## Privacy and security
-
 - All leads, names, emails, phone numbers, messages, and screenshots use synthetic or redacted data.
 - No employer, client, customer, banking, or production data is used.
 - No API keys, OAuth tokens, credentials, private webhook URLs, or private execution URLs are committed to this repository.
