@@ -1,26 +1,37 @@
-# n8n-secure-lead-intake
-A documented n8n lead-intake workflow with validation, AI-ready routing, human approval, and resilient error handling.
-# Secure Lead Intake — n8n Automation Portfolio Project
+# Secure Lead Intake and Human-Reviewed AI Qualification
 
-> A safe n8n workflow that receives a synthetic business lead, validates its data, and returns a clear API response.
-
-## Status
-
-**Phase 1 status:** In progress
+An independent n8n portfolio project that demonstrates a safe lead-intake workflow using synthetic data only.
 
 ## Business problem
 
-Businesses receive leads from websites, forms, ads, and messaging channels. If incoming data is incomplete or duplicated, sales teams can waste time or miss important opportunities.
+Businesses receive leads from websites and forms. Some requests may be incomplete, duplicated, urgent, or require a human decision before any follow-up.
 
-This workflow demonstrates a safe, testable lead-intake foundation before any AI or external message is added.
+## What this project demonstrates
 
-## Current workflow scope
+- Webhook-based lead intake
+- Required-field validation
+- Duplicate-safe lead storage
+- Structured AI lead classification
+- Human approval for high-risk or low-confidence leads
+- Google Sheets Mock CRM integration
+- Error logging and safe workflow design
+- Testing, documentation, and privacy controls
+
+## Workflow overview
 
 ```text
-POST Webhook
-    ↓
-Normalize Lead
-    ↓
-Required Fields Present?
-    ├── Valid   → Return 200 accepted response
-    └── Invalid → Return 400 rejected response
+Webhook
+  → Validate request
+  → Store lead safely
+  → Return 202 Accepted
+  → AI classification
+  → Human approval when required
+  → Save final outcome
+  → Sync final result to a Demo CRM
+
+## Privacy and security
+
+- All leads, names, emails, phone numbers, messages, and screenshots use synthetic or redacted data.
+- No employer, client, customer, banking, or production data is used.
+- No API keys, OAuth tokens, credentials, private webhook URLs, or private execution URLs are committed to this repository.
+- This is an independent portfolio demonstration, not a production deployment or compliance certification.
