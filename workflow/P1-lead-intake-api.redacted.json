@@ -1,0 +1,361 @@
+{
+  "name": "P1 — Lead Intake API (Redacted Portfolio Export)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "portfolio/lead-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "d687a11f-9c20-4d2c-bbef-730284b871c8",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bce7d5fb-e99b-4866-9dcb-997af0c078c0",
+              "leftValue": "={{ ($json.body.fullName || '').trim() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "2cba061e-3b25-4ab5-b0c1-e0629029cc4c",
+              "leftValue": "={{ ($json.body.email || '').trim() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "b01b673d-cddd-4f22-83e3-7fb45a466d28",
+              "leftValue": "={{ ($json.body.source || '').trim() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b2b6bfa2-d6b5-4b31-9474-cb8bc5ee6ba8",
+      "name": "Required Fields Present?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"fullName\": \"{{ $json.body.fullName .trim() }}\",\n  \"email\": \"{{ $json.body.email.trim().toLowerCase() }}\",\n  \"phone\": \"{{ $json.body.phone || '' }}\",\n  \"language\": \"{{ $json.body.language || 'en' }}\",\n  \"source\": \"{{ $json.body.source.trim().toLowerCase() }}\",\n  \"message\": \"{{ $json.body.message || '' }}\"\n} ",
+        "options": {}
+      },
+      "id": "615bb5ed-442a-4388-a8c9-af0fe8c819a0",
+      "name": "Normalize Lead",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        448,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"leadKey\": \"{{ $json.email + '|' + $json.source }}\",\n  \"correlationId\": \"{{ $execution.id }}\",\n  \"fullName\": \"{{ $json.fullName }}\",\n  \"email\": \"{{ $json.email }}\",\n  \"phone\": \"{{ $json.phone }}\",\n  \"language\": \"{{ $json.language }}\",\n  \"source\": \"{{ $json.source }}\",\n  \"message\": \"{{ $json.message }}\",\n  \"receivedAt\": \"{{ $now.toISO() }}\",\n  \"status\": \"received\",\n  \"intent\": \"unclassified\",\n  \"priority\": \"unclassified\",\n  \"aiConfidence\": 0,\n  \"aiReason\": \"Pending classification\",\n  \"approvalStatus\": \"not_required\",\n  \"reviewerNote\": \"\",\n  \"lastUpdatedAt\": \"{{ $now.toISO() }}\"\n}",
+        "options": {}
+      },
+      "id": "58a8d444-45ce-4af6-b2b9-e99c222a22ff",
+      "name": "Build Initial Lead State",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        672,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RESELECT_P1_STORE_LEAD_AFTER_IMPORT",
+          "mode": "list",
+          "cachedResultUrl": "",
+          "cachedResultName": "P1 — Store Lead"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "7e0210a7-2a7c-49cc-ba39-e8da7897a73d",
+      "name": "Store Lead — Received",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        896,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"apiResponse\": {\n    \"status\": \"accepted\",\n    \"message\": \"Lead received and queued for processing.\",\n    \"correlationId\": \"{{ $json.correlationId }}\",\n    \"leadKey\": \"{{ $json.leadKey }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "522a57fe-ddc3-448d-9ab8-46fda8ea4706",
+      "name": "Build Accepted API Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1120,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.apiResponse }}",
+        "options": {
+          "responseCode": 202
+        }
+      },
+      "id": "74d8d45e-0ce3-46c7-a202-652d520a0df4",
+      "name": "Return 202 Accepted",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1344,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ JSON.stringify($('Build Initial Lead State').item.json) }}",
+        "options": {}
+      },
+      "id": "61f712d9-5f47-4276-9a0e-e24e9a63f842",
+      "name": "Restore Lead State",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1568,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RESELECT_P1_LEAD_PROCESSOR_AFTER_IMPORT",
+          "mode": "list",
+          "cachedResultUrl": "",
+          "cachedResultName": "P1 — Lead Processor"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "id": "90d5c708-0329-4390-82d8-8bcce2298d5b",
+      "name": "Start Lead Processor",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        1568,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"status\": \"rejected\",\n  \"message\": \"Missing one or more required fields.\",\n  \"requiredFields\": [\"fullName\", \"email\", \"source\"]\n}",
+        "options": {}
+      },
+      "id": "0855b108-0df7-4a7f-bf7e-556ea40fa98e",
+      "name": "Build Rejected Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        448,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "0573aeac-8789-416b-a7ea-cb0d22c26940",
+      "name": "Return 400 Rejected",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        672,
+        192
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Required Fields Present?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Required Fields Present?": {
+      "main": [
+        [
+          {
+            "node": "Normalize Lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Rejected Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Lead": {
+      "main": [
+        [
+          {
+            "node": "Build Initial Lead State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Initial Lead State": {
+      "main": [
+        [
+          {
+            "node": "Store Lead — Received",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Lead — Received": {
+      "main": [
+        [
+          {
+            "node": "Build Accepted API Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Accepted API Response": {
+      "main": [
+        [
+          {
+            "node": "Return 202 Accepted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Return 202 Accepted": {
+      "main": [
+        [
+          {
+            "node": "Restore Lead State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Restore Lead State": {
+      "main": [
+        [
+          {
+            "node": "Start Lead Processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Rejected Response": {
+      "main": [
+        [
+          {
+            "node": "Return 400 Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "nodeGroups": [],
+  "tags": [],
+  "portfolioExportNote": "Redacted portfolio export. After import, reselect P1 — Store Lead and P1 — Lead Processor in their Execute Sub-workflow nodes, then assign the error workflow."
+}
